@@ -1,7 +1,7 @@
 module s.renderer.blocks.blockWater;
 import s.renderer.block;
 
-class BlockSand : Block
+class BlockWater : Block
 {
 	public this()
 	{

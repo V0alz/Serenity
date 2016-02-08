@@ -7,7 +7,7 @@ import s.renderer.transformation;
 import s.renderer.renderer;
 import s.renderer.chunkData;
 import s.renderer.block;
-import s.renderer.blocks.blockGrass;
+import s.renderer.blocks.main;
 
 class Chunk
 {
@@ -45,7 +45,7 @@ class Chunk
 			{
 				for( int z = 0; z < m_chunkSize; z++ )
 				{
-					m_blocks[x][y][z] = new Block();
+					m_blocks[x][y][z] = new BlockStone();
 					m_blocks[x][y][z].SetActive( true );
 				}
 			}
