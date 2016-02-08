@@ -1,11 +1,11 @@
 module s.renderer.blocks.blockWood;
-import s.renderer.block;
+import s.renderer.blocks.blockBase;
 
-class BlockWood : Block
+class BlockWood : BlockBase
 {
 	public this()
 	{
-		super( true, Block.BlockType.WOOD );
+		super( true, BlockBase.BlockType.WOOD );
 		SetColor( vec3( 0.380392f, 0.172549f, 0.0f ) );
 	}
 	

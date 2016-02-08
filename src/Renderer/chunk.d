@@ -6,7 +6,6 @@ import gl3n.linalg : vec3;
 import s.renderer.transformation;
 import s.renderer.renderer;
 import s.renderer.chunkData;
-import s.renderer.block;
 import s.renderer.blocks.main;
 
 class Chunk
@@ -27,7 +26,7 @@ class Chunk
 	private bool m_updated;
 	private int m_size;
 	private static const uint m_chunkSize = 16;
-	private Block[m_chunkSize][m_chunkSize][m_chunkSize] m_blocks;
+	private BlockBase[m_chunkSize][m_chunkSize][m_chunkSize] m_blocks;
 	
 	public this()
 	{
@@ -115,14 +114,14 @@ class Chunk
 	
 	private void AddCube( ref ChunkData data, int x, int y, int z )
 	{
-		vec3 point1 = vec3( x - Block.GetBlockSize(), y - Block.GetBlockSize(), z + Block.GetBlockSize() );
-		vec3 point2 = vec3( x + Block.GetBlockSize(), y - Block.GetBlockSize(), z + Block.GetBlockSize() );
-		vec3 point3 = vec3( x + Block.GetBlockSize(), y + Block.GetBlockSize(), z + Block.GetBlockSize() );
-		vec3 point4 = vec3( x - Block.GetBlockSize(), y + Block.GetBlockSize(), z + Block.GetBlockSize() );
-		vec3 point5 = vec3( x + Block.GetBlockSize(), y - Block.GetBlockSize(), z - Block.GetBlockSize() );
-		vec3 point6 = vec3( x - Block.GetBlockSize(), y - Block.GetBlockSize(), z - Block.GetBlockSize() );
-		vec3 point7 = vec3( x - Block.GetBlockSize(), y + Block.GetBlockSize(), z - Block.GetBlockSize() );
-		vec3 point8 = vec3( x + Block.GetBlockSize(), y + Block.GetBlockSize(), z - Block.GetBlockSize() );
+		vec3 point1 = vec3( x - BlockBase.GetBlockSize(), y - BlockBase.GetBlockSize(), z + BlockBase.GetBlockSize() );
+		vec3 point2 = vec3( x + BlockBase.GetBlockSize(), y - BlockBase.GetBlockSize(), z + BlockBase.GetBlockSize() );
+		vec3 point3 = vec3( x + BlockBase.GetBlockSize(), y + BlockBase.GetBlockSize(), z + BlockBase.GetBlockSize() );
+		vec3 point4 = vec3( x - BlockBase.GetBlockSize(), y + BlockBase.GetBlockSize(), z + BlockBase.GetBlockSize() );
+		vec3 point5 = vec3( x + BlockBase.GetBlockSize(), y - BlockBase.GetBlockSize(), z - BlockBase.GetBlockSize() );
+		vec3 point6 = vec3( x - BlockBase.GetBlockSize(), y - BlockBase.GetBlockSize(), z - BlockBase.GetBlockSize() );
+		vec3 point7 = vec3( x - BlockBase.GetBlockSize(), y + BlockBase.GetBlockSize(), z - BlockBase.GetBlockSize() );
+		vec3 point8 = vec3( x + BlockBase.GetBlockSize(), y + BlockBase.GetBlockSize(), z - BlockBase.GetBlockSize() );
 		
 		vec3 normal;
 		vec3 color = m_blocks[x][y][z].GetColor();

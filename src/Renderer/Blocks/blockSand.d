@@ -1,11 +1,11 @@
 module s.renderer.blocks.blockStand;
-import s.renderer.block;
+import s.renderer.blocks.blockBase;
 
-class BlockSand : Block
+class BlockSand : BlockBase
 {
 	public this()
 	{
-		super( true, Block.BlockType.SAND );
+		super( true, BlockBase.BlockType.SAND );
 		SetColor( vec3( 0.858823f, 0.858823f, 0.337254f ) );
 	}
 	

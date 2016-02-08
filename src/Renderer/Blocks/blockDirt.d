@@ -1,11 +1,11 @@
 module s.renderer.blocks.blockDirt;
-import s.renderer.block;
+import s.renderer.blocks.blockBase;
 
-class BlockDirt : Block
+class BlockDirt : BlockBase
 {
 	public this()
 	{
-		super( true, Block.BlockType.DIRT );
+		super( true, BlockBase.BlockType.DIRT );
 		SetColor( vec3( 0.701960f, 0.419607f, 0.188235f ) );
 	}
 	

@@ -1,4 +1,4 @@
-module s.renderer.block;
+module s.renderer.blocks.blockBase;
 
 import gl3n.linalg : vec3;
 
@@ -9,7 +9,7 @@ import block types here
 }
 */
 
-class Block
+class BlockBase
 {
 	public static enum BlockType
 	{

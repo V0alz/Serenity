@@ -1,11 +1,11 @@
 module s.renderer.blocks.blockGrass;
-import s.renderer.block;
+import s.renderer.blocks.blockBase;
 
-class BlockGrass : Block
+class BlockGrass : BlockBase
 {
 	public this()
 	{
-		super( true, Block.BlockType.GRASS );
+		super( true, BlockBase.BlockType.GRASS );
 		SetColor( vec3( 0.0f, 1.0f, 0.0f ) );
 	}
 	

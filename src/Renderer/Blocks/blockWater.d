@@ -1,11 +1,11 @@
 module s.renderer.blocks.blockWater;
-import s.renderer.block;
+import s.renderer.blocks.blockBase;
 
-class BlockWater : Block
+class BlockWater : BlockBase
 {
 	public this()
 	{
-		super( true, Block.BlockType.WATER );
+		super( true, BlockBase.BlockType.WATER );
 		SetColor( vec3( 0.133333f, 0.9254901f, 0.941176f ) );
 	}
 	

@@ -2,6 +2,7 @@ module s.renderer.blocks.main;
 
 public
 {
+	import s.renderer.blocks.blockBase;
 	import s.renderer.blocks.blockGrass;
 	import s.renderer.blocks.blockDirt;
 	import s.renderer.blocks.blockStone;
