@@ -1,6 +1,8 @@
 {
 	"name" : "serenity",
 	"description" : "Serenity - Voxels!.",
+	"authors": ["Dennis Walsh"],
+	"homepage": "http://v0alz.github.io/",
 	"importPaths": [
 				"src/",
 				"src/Renderer/",
