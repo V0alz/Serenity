@@ -49,10 +49,10 @@ class Renderer
 			glCullFace( GL_BACK );
 			glEnable( GL_CULL_FACE );
 			
-			m_camera = new Camera( vec3( 0.0f, 0.0f, -4.0f ) );
+			m_camera = new Camera( vec3( 0.0f, -2.0f, 18.0f ) );
 			int width, height;
 			glfwGetWindowSize( Window.GetWindow(), &width, &height );
-			m_camera.SetProjection( 45.0f, width, height, 0.1f, 10.0000f );
+			m_camera.SetProjection( 45.0f, width, height, 0.1f, 100.0f );
 			
 			bool result;
 			m_shader = new Shader( "main", result );
@@ -67,6 +67,7 @@ class Renderer
 			m_shader.AddUniform( "_transform_model" );
 			m_shader.AddUniform( "_transform_view" );
 			m_shader.AddUniform( "_transform_perspective" );
+			m_shader.AddUniform( "mvp" );
 			
 			m_initalized = true;
 			Logger.Write( "Renderer initalized succesfully" );

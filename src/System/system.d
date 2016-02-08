@@ -46,10 +46,7 @@ class System
 			{
 				case State.EngineStates.INIT:
 					m_renderer.GetShader().Bind();
-					//m_renderer.GetShader().SetUniform( "_transform_view", m_renderer.GetCamera().GetView() );
-					//m_renderer.GetShader().SetUniform( "_transform_perspective", m_renderer.GetCamera().GetProjection() );
-					//m_renderer.GetShader().SetUniform( "_transform_model", mat4() );
-					c.Render();
+					c.Render( &m_renderer  );
 					break;
 					// init game in this case
 				case State.EngineStates.MAINMENU:
@@ -71,6 +68,7 @@ class System
 		}
 		while( m_running );
 		
+		delete c;
 		Clean();
 	}
 	

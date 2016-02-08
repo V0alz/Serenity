@@ -144,10 +144,14 @@ class Shader
 		
 		int loc = glGetUniformLocation( m_program, cast(char*)name );
 		m_uniforms[name] = loc;
+		
+		writeln( name );
+		writeln(  m_uniforms[name]);
+		writeln( loc );
 	}
 	
 	public void SetUniform( const string name, mat4 value )
 	{
-		glUniformMatrix4fv( m_uniforms[name], 1, GL_FALSE, &(value[0][0]) );
+		glUniformMatrix4fv( m_uniforms[name], 1, GL_TRUE, &value[0][0] );
 	}
 };

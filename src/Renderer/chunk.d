@@ -3,9 +3,11 @@ import s.system.logger;
 import std.stdio;
 import derelict.opengl3.gl3;
 import gl3n.linalg : vec3;
+import s.renderer.transformation;
+import s.renderer.renderer;
 import s.renderer.chunkData;
 import s.renderer.block;
-import s.renderer.blockGrass;
+import s.renderer.blocks.blockGrass;
 
 class Chunk
 {
@@ -15,14 +17,16 @@ class Chunk
 		NORMAL,
 		COLOR,
 		NUM
-	}
+	};
+	
 	private uint m_vao;
 	private uint[BufferObjects.NUM] m_vbo;
 	private uint m_ibo;
+	private Transformation m_transform;
 	
 	private bool m_updated;
 	private int m_size;
-	private const uint m_chunkSize = 16;
+	private static const uint m_chunkSize = 16;
 	private Block[m_chunkSize][m_chunkSize][m_chunkSize] m_blocks;
 	
 	public this()
@@ -30,6 +34,7 @@ class Chunk
 		glGenVertexArrays( 1, &m_vao );
 		glGenBuffers( cast(int)BufferObjects.NUM, m_vbo.ptr );
 		glGenBuffers( 1, &m_ibo );
+		m_transform = new Transformation( vec3( 0.0f, 0.0f, -5.0f ) );
 		
 		// allows build of mesh data
 		m_updated = true;
@@ -52,6 +57,7 @@ class Chunk
 		glDeleteBuffers( 1, &m_ibo );
 		glDeleteBuffers( cast(int)BufferObjects.NUM, m_vbo.ptr );
 		glDeleteVertexArrays( 1, &m_vao );
+		delete m_transform;
 	}
 	
 	public void CreateMesh()
@@ -90,11 +96,12 @@ class Chunk
 		glEnableVertexAttribArray( 2 );
 		glVertexAttribPointer( 2, 3, GL_FLOAT, GL_FALSE, 0, cast(void*)0 );
 		
+		// Arrays never like me when it comes to indices, so i play it safe lol
 		m_size = data.m_indices.length();
 		uint[] indices = new uint[m_size];
 		for( int i = 0; i < m_size; i++ )
 		{
-			indices[i] = data.m_indices[i];
+			indices[i] = data.m_indices[i] - 1;
 		}
 		
 		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_ibo );
@@ -118,17 +125,17 @@ class Chunk
 		vec3 point8 = vec3( x + Block.GetBlockSize(), y + Block.GetBlockSize(), z - Block.GetBlockSize() );
 		
 		vec3 normal;
-		vec3 tmpCol = vec3( 1.0f, 1.0f, 1.0f );
+		vec3 color = m_blocks[x][y][z].GetColor();
 		
 		uint v1, v2, v3, v4, v5, v6, v7, v8;
 		
 		// front
 		normal = vec3( 0.0f, 0.0f, 1.0f );
 		
-		v1 = data.AddVertex( point1, normal, tmpCol );
-		v2 = data.AddVertex( point2, normal, tmpCol );
-		v3 = data.AddVertex( point3, normal, tmpCol );
-		v4 = data.AddVertex( point4, normal, tmpCol );
+		v1 = data.AddVertex( point1, normal, color );
+		v2 = data.AddVertex( point2, normal, color );
+		v3 = data.AddVertex( point3, normal, color );
+		v4 = data.AddVertex( point4, normal, color );
 		
 		data.AddFace( vec3( v1, v2, v3 ) );
 		data.AddFace( vec3( v1, v3, v4 ) );
@@ -136,10 +143,10 @@ class Chunk
 		// back
 		normal = vec3( 0.0f, 0.0f, -1.0f );
 		
-		v5 = data.AddVertex( point5, normal, tmpCol );
-		v6 = data.AddVertex( point6, normal, tmpCol );
-		v7 = data.AddVertex( point7, normal, tmpCol );
-		v8 = data.AddVertex( point8, normal, tmpCol );
+		v5 = data.AddVertex( point5, normal, color );
+		v6 = data.AddVertex( point6, normal, color );
+		v7 = data.AddVertex( point7, normal, color );
+		v8 = data.AddVertex( point8, normal, color );
 		
 		data.AddFace( vec3( v5, v6, v7 ) );
 		data.AddFace( vec3( v5, v7, v8 ) );
@@ -147,10 +154,10 @@ class Chunk
 		// right
 		normal = vec3( 1.0f, 0.0f, 0.0f );
 		
-		v2 = data.AddVertex( point2, normal, tmpCol );
-		v5 = data.AddVertex( point5, normal, tmpCol );
-		v8 = data.AddVertex( point8, normal, tmpCol );
-		v3 = data.AddVertex( point3, normal, tmpCol );
+		v2 = data.AddVertex( point2, normal, color );
+		v5 = data.AddVertex( point5, normal, color );
+		v8 = data.AddVertex( point8, normal, color );
+		v3 = data.AddVertex( point3, normal, color );
 		
 		data.AddFace( vec3( v2, v5, v8 ) );
 		data.AddFace( vec3( v2, v8, v3 ) );
@@ -158,10 +165,10 @@ class Chunk
 		// left
 		normal = vec3( -1.0f, 0.0f, 0.0f );
 		
-		v6 = data.AddVertex( point6, normal, tmpCol );
-		v1 = data.AddVertex( point1, normal, tmpCol );
-		v4 = data.AddVertex( point4, normal, tmpCol );
-		v7 = data.AddVertex( point7, normal, tmpCol );
+		v6 = data.AddVertex( point6, normal, color );
+		v1 = data.AddVertex( point1, normal, color );
+		v4 = data.AddVertex( point4, normal, color );
+		v7 = data.AddVertex( point7, normal, color );
 		
 		data.AddFace( vec3( v6, v1, v4 ) );
 		data.AddFace( vec3( v6, v4, v7 ) );
@@ -169,10 +176,10 @@ class Chunk
 		// top
 		normal = vec3( 0.0f, 1.0f, 0.0f );
 		
-		v4 = data.AddVertex( point4, normal, tmpCol );
-		v3 = data.AddVertex( point3, normal, tmpCol );
-		v8 = data.AddVertex( point8, normal, tmpCol );
-		v7 = data.AddVertex( point7, normal, tmpCol );
+		v4 = data.AddVertex( point4, normal, color );
+		v3 = data.AddVertex( point3, normal, color );
+		v8 = data.AddVertex( point8, normal, color );
+		v7 = data.AddVertex( point7, normal, color );
 		
 		data.AddFace( vec3( v4, v3, v8 ) );
 		data.AddFace( vec3( v4, v8, v7 ) );
@@ -180,17 +187,20 @@ class Chunk
 		// bottom
 		normal = vec3( 0.0f, -1.0f, 0.0f );
 		
-		v6 = data.AddVertex( point6, normal, tmpCol );
-		v5 = data.AddVertex( point5, normal, tmpCol );
-		v2 = data.AddVertex( point2, normal, tmpCol );
-		v1 = data.AddVertex( point1, normal, tmpCol );
+		v6 = data.AddVertex( point6, normal, color );
+		v5 = data.AddVertex( point5, normal, color );
+		v2 = data.AddVertex( point2, normal, color );
+		v1 = data.AddVertex( point1, normal, color );
 		
 		data.AddFace( vec3( v6, v5, v2 ) );
 		data.AddFace( vec3( v6, v2, v1 ) );
 	}
 	
-	public void Render()
+	public void Render( Renderer* renderer )
 	{
+		renderer.GetShader().SetUniform( "_transform_model", m_transform.GetModelMatrix() );
+		renderer.GetShader().SetUniform( "_transform_view", renderer.GetCamera().GetView() );
+		renderer.GetShader().SetUniform( "_transform_perspective", renderer.GetCamera().GetProjection() );
 		glBindVertexArray( m_vao );
 		glDrawElements( GL_TRIANGLES, m_size, GL_UNSIGNED_INT, cast(void*)0 );
 		glBindVertexArray( 0 );
