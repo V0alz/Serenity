@@ -1,0 +1,14 @@
+{
+	"name" : "serenity",
+	"description" : "Serenity - Voxels!.",
+	"importPaths": [
+				"src/",
+				"src/Renderer/",
+				"src/System/"
+			],
+	"dependencies" : {
+		"derelict-glfw3": "~>1.1.1",
+		"derelict-gl3": "~>1.0.18",
+		"gl3n": "~>1.3.1"
+	}
+}
