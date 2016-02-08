@@ -1,5 +1,12 @@
 module s.renderer.block;
 
+/*
+public
+{
+import block types here
+}
+*/
+
 class Block
 {
 	public static enum BlockType

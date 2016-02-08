@@ -1,6 +1,6 @@
 module s.renderer.chunk;
 import s.system.logger;
-import std.stdio, std.conv;
+import std.stdio;
 import derelict.opengl3.gl3;
 import gl3n.linalg : vec3;
 import s.renderer.chunkData;
@@ -56,7 +56,6 @@ class Chunk
 	
 	public void CreateMesh()
 	{
-		Logger.Write( "making chunk" );
 		ChunkData data;
 		for( int x = 0; x < m_chunkSize; x++ )
 		{

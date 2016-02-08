@@ -5,7 +5,7 @@ class BlockGrass : Block
 {
 	public this()
 	{
-		super( false, Block.BlockType.GRASS );
+		super( true, Block.BlockType.GRASS );
 	}
 	
 	public ~this()

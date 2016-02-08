@@ -1,12 +1,14 @@
 module s.renderer.shader;
 import s.system.logger;
 import derelict.opengl3.gl3;
+import gl3n.linalg : mat4;
 import std.container, std.stdio, std.conv, std.string;
 
 class Shader
 {
 	private int m_program;
 	private Array!int m_shaders;
+	private int[string] m_uniforms;
 	
 	public this()
 	{
@@ -135,5 +137,17 @@ class Shader
 		{
 			throw( e );
 		}
+	}
+	
+	public void AddUniform( const string name )
+	{
+		
+		int loc = glGetUniformLocation( m_program, cast(char*)name );
+		m_uniforms[name] = loc;
+	}
+	
+	public void SetUniform( const string name, mat4 value )
+	{
+		glUniformMatrix4fv( m_uniforms[name], 1, GL_FALSE, &(value[0][0]) );
 	}
 };

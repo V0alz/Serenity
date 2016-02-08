@@ -43,6 +43,18 @@ class Window
 		Logger.Write( "Window closed" );
 	}
 	
+	public static bool ShouldClose()
+	{
+		if( glfwWindowShouldClose( m_window ) )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
 	public static void Swap()
 	{
 		glfwSwapBuffers( m_window );

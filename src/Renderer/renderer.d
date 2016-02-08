@@ -1,13 +1,17 @@
 module s.renderer.renderer;
-private import std.stdio;
-private import derelict.opengl3.gl3;
+import std.stdio;
+import derelict.opengl3.gl3;
+import derelict.glfw3.glfw3;
+import gl3n.linalg : vec3;
 private import s.renderer.window;
 import s.renderer.shader;
+import s.renderer.camera;
 import s.system.logger;
 
 class Renderer
 {
 	private bool m_initalized;
+	private Camera m_camera;
 	private Shader m_shader;
 	
 	public this()
@@ -41,9 +45,14 @@ class Renderer
 			glEnable( GL_DEPTH_TEST );
 			glDepthFunc( GL_LESS );
 			
-			/*glFrontFace( GL_CCW );
+			glFrontFace( GL_CCW );
 			glCullFace( GL_BACK );
-			glEnable( GL_CULL_FACE );*/
+			glEnable( GL_CULL_FACE );
+			
+			m_camera = new Camera( vec3( 0.0f, 0.0f, -4.0f ) );
+			int width, height;
+			glfwGetWindowSize( Window.GetWindow(), &width, &height );
+			m_camera.SetProjection( 45.0f, width, height, 0.1f, 10.0000f );
 			
 			bool result;
 			m_shader = new Shader( "main", result );
@@ -54,6 +63,10 @@ class Renderer
 				Logger.Write( "Exiting renderer initalization", Logger.MSGTypes.WARNING );
 				return false;
 			}
+			
+			m_shader.AddUniform( "_transform_model" );
+			m_shader.AddUniform( "_transform_view" );
+			m_shader.AddUniform( "_transform_perspective" );
 			
 			m_initalized = true;
 			Logger.Write( "Renderer initalized succesfully" );
@@ -86,5 +99,10 @@ class Renderer
 	public Shader* GetShader()
 	{
 		return &m_shader;
+	}
+	
+	public Camera* GetCamera()
+	{
+		return &m_camera;
 	}
 };

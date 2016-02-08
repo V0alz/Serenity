@@ -1,12 +1,14 @@
 module s.system.system;
+
+import s.system.logger;
 import std.stdio;
 import s.renderer.renderer;
 import s.renderer.window;
 import s.system.state;
-import s.system.logger;
 
 // temp import
 import derelict.glfw3.glfw3;
+import gl3n.linalg;
 import s.renderer.chunk;
 
 class System
@@ -34,9 +36,8 @@ class System
 		
 		do
 		{
-			if( glfwWindowShouldClose( Window.GetWindow() ) )
+			if( Window.ShouldClose() )
 			{
-				// state = final
 				Stop();
 			}
 			
@@ -45,6 +46,9 @@ class System
 			{
 				case State.EngineStates.INIT:
 					m_renderer.GetShader().Bind();
+					//m_renderer.GetShader().SetUniform( "_transform_view", m_renderer.GetCamera().GetView() );
+					//m_renderer.GetShader().SetUniform( "_transform_perspective", m_renderer.GetCamera().GetProjection() );
+					//m_renderer.GetShader().SetUniform( "_transform_model", mat4() );
 					c.Render();
 					break;
 					// init game in this case
@@ -74,7 +78,7 @@ class System
 	{
 		if( m_running )
 		{
-			writeln( "Y U START TWICE!" );
+			Logger.Write( "Y U START TWICE!", Logger.MSGTypes.WARNING );
 			return;
 		}
 		
@@ -88,7 +92,7 @@ class System
 	{
 		if( !m_running )
 		{
-			writeln( "Y U NO RUN" );
+			Logger.Write( "Y U NO RUN", Logger.MSGTypes.WARNING );
 			return;
 		}
 		
