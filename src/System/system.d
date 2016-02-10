@@ -21,6 +21,7 @@ import s.system.logger;
 import std.stdio;
 import s.renderer.renderer;
 import s.system.state;
+import s.system.input;
 
 // temp import
 import derelict.glfw3.glfw3;
@@ -30,17 +31,18 @@ import s.renderer.chunk;
 class System
 {
 	private bool m_running;
+	private double m_deltaTime;
 	private Renderer m_renderer;
 	
 	public this()
 	{
 		m_running = false;
+		m_deltaTime = 0.0;
 		State.SetMode( State.EngineStates.INIT );
 	}
 	
 	public ~this()
 	{
-		
 	}
 	
 	public void Run()
@@ -50,6 +52,9 @@ class System
 		Chunk c = new Chunk();
 		c.CreateMesh();
 		
+		double lastTime = glfwGetTime();
+		double currentTime = glfwGetTime();		
+		
 		do
 		{
 			if( Window.ShouldClose() )
@@ -57,12 +62,15 @@ class System
 				Stop();
 			}
 			
+			currentTime = glfwGetTime();
+			m_deltaTime = currentTime - lastTime;
+			
 			m_renderer.Clear();
 			switch( State.GetMode() )
 			{
 				case State.EngineStates.INIT:
-					m_renderer.GetShader().Bind();
-					c.Render( &m_renderer  );
+					Input.Init();
+					State.SetMode( State.EngineStates.PLAYING );
 					break;
 					// init game in this case
 				case State.EngineStates.MAINMENU:
@@ -70,8 +78,9 @@ class System
 				case State.EngineStates.PAUSED:
 					// paused menu here
 				case State.EngineStates.PLAYING:
-					// game logic here
-					//writeln( "playing" );
+					m_renderer.GetCamera().Update( m_deltaTime );
+					m_renderer.GetShader().Bind();
+					c.Render( &m_renderer  );
 					break;
 				default:
 				case State.EngineStates.NUM_OF_MODES:
@@ -81,6 +90,7 @@ class System
 			
 			m_renderer.Swap();
 			glfwPollEvents();
+			lastTime = currentTime;
 		}
 		while( m_running );
 		

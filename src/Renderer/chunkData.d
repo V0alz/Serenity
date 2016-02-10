@@ -35,6 +35,11 @@ struct ChunkData
 		return m_vertex.length();
 	}
 	
+	public void SetVertex( vec3 v, int offset )
+	{
+		m_vertex[m_vertex.length() - 1 - offset] = v;
+	}
+	
 	public void AddFace( vec3 face )
 	{
 		m_indices.insertBack( to!uint(face.x) );

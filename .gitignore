@@ -1,0 +1,6 @@
+*.dll
+dub.selections.json
+*.exe
+.dub/build/application-debug-windows-x86-dmd_2068-006B5955569A922FA7F2ABF209D7EF8D/serenity.obj
+*.json
+out.txt

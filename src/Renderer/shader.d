@@ -162,9 +162,10 @@ class Shader
 		int loc = glGetUniformLocation( m_program, cast(char*)name );
 		m_uniforms[name] = loc;
 		
-		writeln( name );
-		writeln(  m_uniforms[name]);
-		writeln( loc );
+		// if you cant work out if uniforms are found uncomment below.
+		//writeln( name );
+		//writeln(  m_uniforms[name]);
+		//writeln( loc );
 	}
 	
 	public void SetUniform( const string name, mat4 value )

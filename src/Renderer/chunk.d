@@ -19,7 +19,7 @@ module s.renderer.chunk;
 import s.system.logger;
 import std.stdio;
 import derelict.opengl3.gl3;
-import gl3n.linalg : vec3;
+import gl3n.linalg : vec3, vec3i;
 import s.renderer.transformation;
 import s.renderer.renderer;
 import s.renderer.chunkData;
@@ -35,6 +35,17 @@ class Chunk
 		NUM
 	};
 	
+	public static enum Neighbour
+	{
+		NEGX,
+		POSX,
+		NEGY,
+		POSY,
+		NEGZ,
+		POSZ,
+		NUM_NEIGHBOURS
+	};
+	
 	private uint m_vao;
 	private uint[BufferObjects.NUM] m_vbo;
 	private uint m_ibo;
@@ -43,7 +54,8 @@ class Chunk
 	private bool m_updated;
 	private int m_size;
 	private static const uint m_chunkSize = 16;
-	private BlockBase[m_chunkSize][m_chunkSize][m_chunkSize] m_blocks;
+	public BlockBase[m_chunkSize][m_chunkSize][m_chunkSize] m_blocks;
+	private Chunk*[Neighbour.NUM_NEIGHBOURS] m_neighbours;
 	
 	public this()
 	{
@@ -61,10 +73,24 @@ class Chunk
 			{
 				for( int z = 0; z < m_chunkSize; z++ )
 				{
-					m_blocks[x][y][z] = new BlockStone();
-					m_blocks[x][y][z].SetActive( true );
+					if( x != 3 && y != 3 )
+					{
+						m_blocks[x][y][z] = new BlockStone();
+						m_blocks[x][y][z].SetActive( true );
+					}
+					else
+					{
+						m_blocks[x][y][z] = new BlockDirt();
+						m_blocks[x][y][z].SetActive( false );
+					}
 				}
 			}
+		}
+		
+		m_neighbours = new Chunk*[Neighbour.NUM_NEIGHBOURS];
+		for( int i = 0; i < Neighbour.NUM_NEIGHBOURS; i++ )
+		{
+			m_neighbours[i] = null;
 		}
 	}
 	
@@ -79,20 +105,124 @@ class Chunk
 	public void CreateMesh()
 	{
 		ChunkData data;
+		bool lastVisible = false;
+		
+		for( int x = 0; x < m_chunkSize; x++ )
+		{
+			for( int y = 0; y < m_chunkSize; y++ )
+			{
+				lastVisible = false;
+				for( int z = 0; z < m_chunkSize; z++ )
+				{
+					if( IsFaceBlocked( vec3i( x, y, z ), vec3i( x - 1, y, z ) ) )
+					{
+						lastVisible = false;
+						continue;
+					}
+					
+					AddCubeFace( data, 0, lastVisible, x, y, z );
+					lastVisible = true;
+				}
+			}
+		}
+		
+		for( int x = 0; x < m_chunkSize; x++ )
+		{
+			for( int y = 0; y < m_chunkSize; y++ )
+			{
+				lastVisible = false;
+				for( int z = 0; z < m_chunkSize; z++ )
+				{
+					if( IsFaceBlocked( vec3i( x, y, z ), vec3i( x + 1, y, z ) ) )
+					{
+						lastVisible = false;
+						continue;
+					}
+					
+					AddCubeFace( data, 1, lastVisible, x, y, z );
+					lastVisible = true;
+				}
+			}
+		}
+		
+		for( int x = 0; x < m_chunkSize; x++ )
+		{
+			for( int y = 0; y < m_chunkSize; y++ )
+			{
+				lastVisible = false;
+				for( int z = 0; z < m_chunkSize; z++ )
+				{
+					if( IsFaceBlocked( vec3i( x, y, z ), vec3i( x, y, z - 1 ) ) )
+					{
+						lastVisible = false;
+						continue;
+					}
+					
+					AddCubeFace( data, 2, lastVisible, x, y, z );
+					lastVisible = true;
+				}
+			}
+		}
+		
+		for( int x = 0; x < m_chunkSize; x++ )
+		{
+			for( int y = 0; y < m_chunkSize; y++ )
+			{
+				lastVisible = false;
+				for( int z = 0; z < m_chunkSize; z++ )
+				{
+					if( IsFaceBlocked( vec3i( x, y, z ), vec3i( x, y, z + 1 ) ) )
+					{
+						lastVisible = false;
+						continue;
+					}
+					
+					AddCubeFace( data, 3, lastVisible, x, y, z );
+					lastVisible = true;
+				}
+			}
+		}
+		
 		for( int x = 0; x < m_chunkSize; x++ )
 		{
 			for( int y = 0; y < m_chunkSize; y++ )
 			{
 				for( int z = 0; z < m_chunkSize; z++ )
 				{
-					if( !m_blocks[x][y][z].IsActive() )
+					if( IsFaceBlocked( vec3i( x, y, z ), vec3i( x, y - 1, z ) ) )
 					{
+						lastVisible = false;
 						continue;
 					}
 					
-					AddCube( data, x, y, z );
+					AddCubeFace( data, 4, lastVisible, x, y, z );
+					lastVisible = true;
 				}
 			}
+		}
+		
+		for( int x = 0; x < m_chunkSize; x++ )
+		{
+			for( int y = 0; y < m_chunkSize; y++ )
+			{
+				for( int z = 0; z < m_chunkSize; z++ )
+				{
+					if( IsFaceBlocked( vec3i( x, y, z ), vec3i( x, y + 1, z ) ) )
+					{
+						lastVisible = false;
+						continue;
+					}
+					
+					AddCubeFace( data, 5, lastVisible, x, y, z );
+					lastVisible = true;
+				}
+			}
+		}
+		
+		if( data.m_vertex.length() == 0 || data.m_indices.length() == 0 )
+		{
+			Logger.Write( "Empty chunk created", Logger.MSGTypes.WARNING );
+			return;
 		}
 		
 		glBindVertexArray( m_vao );
@@ -129,7 +259,7 @@ class Chunk
 		m_updated = false;
 	}
 	
-	private void AddCube( ref ChunkData data, int x, int y, int z )
+	private void AddCubeFace( ref ChunkData data, int side, ref bool lastVisible, int x, int y, int z )
 	{
 		vec3 point1 = vec3( x - BlockBase.GetBlockSize(), y - BlockBase.GetBlockSize(), z + BlockBase.GetBlockSize() );
 		vec3 point2 = vec3( x + BlockBase.GetBlockSize(), y - BlockBase.GetBlockSize(), z + BlockBase.GetBlockSize() );
@@ -140,76 +270,245 @@ class Chunk
 		vec3 point7 = vec3( x - BlockBase.GetBlockSize(), y + BlockBase.GetBlockSize(), z - BlockBase.GetBlockSize() );
 		vec3 point8 = vec3( x + BlockBase.GetBlockSize(), y + BlockBase.GetBlockSize(), z - BlockBase.GetBlockSize() );
 		
-		vec3 normal;
 		vec3 color = m_blocks[x][y][z].GetColor();
 		
-		uint v1, v2, v3, v4, v5, v6, v7, v8;
+		uint v1, v2, v3, v4;
 		
-		// front
-		normal = vec3( 0.0f, 0.0f, 1.0f );
+		switch( side )
+		{
+		case 0: // neg x
+		{
+			if( lastVisible && 
+				m_blocks[x][y][z].GetBlockType() == FindBlockType( vec3i( x, y, z - 1 ) ) )
+			{
+				data.SetVertex( point1, 2 );
+				data.SetVertex( point4, 0 );
+			}
+			else
+			{
+				v1 = data.AddVertex( point6, vec3( -1.0f, 0.0f, 1.0f ), color );
+				v2 = data.AddVertex( point1, vec3( -1.0f, 0.0f, 1.0f ), color );
+				v3 = data.AddVertex( point7, vec3( -1.0f, 0.0f, 1.0f ), color );
+				v4 = data.AddVertex( point4, vec3( -1.0f, 0.0f, 1.0f ), color );
+				
+				data.AddFace( vec3( v1, v2, v3 ) );
+				data.AddFace( vec3( v3, v2, v4 ) );
+			}
+			break;
+		}
+		case 1: // pos x
+		{
+			if( lastVisible &&
+				m_blocks[x][y][z].GetBlockType() == FindBlockType( vec3i( x, y, z - 1 ) ) )
+			{
+				data.SetVertex( point2, 1 );
+				data.SetVertex( point3, 0 );
+			}
+			else
+			{
+				v1 = data.AddVertex( point5, vec3( 1.0f, 0.0f, 0.0f ), color );
+				v2 = data.AddVertex( point8, vec3( 1.0f, 0.0f, 0.0f ), color );
+				v3 = data.AddVertex( point2, vec3( 1.0f, 0.0f, 0.0f ), color );
+				v4 = data.AddVertex( point3, vec3( 1.0f, 0.0f, 0.0f ), color );
+				
+				data.AddFace( vec3( v1, v2, v3 ) );
+				data.AddFace( vec3( v3, v2, v4 ) );
+			}
+			break;
+		}
+		case 2: // neg z
+		{
+			if( lastVisible &&
+				m_blocks[x][y][z].GetBlockType() == FindBlockType( vec3i( x, y - 1, z ) ) )
+			{
+				data.SetVertex( point7, 2 );
+				data.SetVertex( point8, 0 );
+			}
+			else
+			{
+				v1 = data.AddVertex( point6, vec3( 0.0f, 0.0f, -1.0f ), color );
+				v2 = data.AddVertex( point7, vec3( 0.0f, 0.0f, -1.0f ), color );
+				v3 = data.AddVertex( point5, vec3( 0.0f, 0.0f, -1.0f ), color );
+				v4 = data.AddVertex( point8, vec3( 0.0f, 0.0f, -1.0f ), color );
+				
+				data.AddFace( vec3( v1, v2, v3 ) );
+				data.AddFace( vec3( v2, v4, v3 ) );
+			}
+			break;
+		}	
+		case 3: // pos z
+		{
+			if( lastVisible &&
+				m_blocks[x][y][z].GetBlockType() == FindBlockType( vec3i( x, y - 1, z ) ) )
+			{
+				data.SetVertex( point7, 1 );
+				data.SetVertex( point3, 0 );
+			}
+			else
+			{
+				v1 = data.AddVertex( point1, vec3( 0.0f, 0.0f, 1.0f ), color );
+				v2 = data.AddVertex( point2, vec3( 0.0f, 0.0f, 1.0f ), color );
+				v3 = data.AddVertex( point4, vec3( 0.0f, 0.0f, 1.0f ), color );
+				v4 = data.AddVertex( point3, vec3( 0.0f, 0.0f, 1.0f ), color );
+				
+				data.AddFace( vec3( v1, v2, v3 ) );
+				data.AddFace( vec3( v2, v4, v3 ) );
+			}
+			break;
+		}	
+		case 4: // neg y
+		{
+			if( lastVisible &&
+				m_blocks[x][y][z].GetBlockType() == FindBlockType( vec3i( x, y, z - 1 ) ) )
+			{
+				data.SetVertex( point1, 1 );
+				data.SetVertex( point2, 0 );
+			}
+			else
+			{
+				v1 = data.AddVertex( point6, vec3( 0.0f, -1.0f, 0.0f ), color );
+				v2 = data.AddVertex( point5, vec3( 0.0f, -1.0f, 0.0f ), color );
+				v3 = data.AddVertex( point1, vec3( 0.0f, -1.0f, 0.0f ), color );
+				v4 = data.AddVertex( point2, vec3( 0.0f, -1.0f, 0.0f ), color );
+				
+				data.AddFace( vec3( v1, v2, v3 ) );
+				data.AddFace( vec3( v2, v4, v3 ) );
+			}
+			break;
+		}	
+		case 5: // pos y
+		{
+			if( lastVisible &&
+				m_blocks[x][y][z].GetBlockType() == FindBlockType( vec3i( x, y, z - 1 ) ) )
+			{
+				data.SetVertex( point4, 2 );
+				data.SetVertex( point3, 0 );
+			}
+			else
+			{
+				v1 = data.AddVertex( point7, vec3( 0.0f, 1.0f, 0.0f ), color );
+				v2 = data.AddVertex( point4, vec3( 0.0f, 1.0f, 0.0f ), color );
+				v3 = data.AddVertex( point8, vec3( 0.0f, 1.0f, 0.0f ), color );
+				v4 = data.AddVertex( point3, vec3( 0.0f, 1.0f, 0.0f ), color );
+				
+				data.AddFace( vec3( v1, v2, v3 ) );
+				data.AddFace( vec3( v2, v4, v3 ) );
+			}
+			break;
+		}	
+		default:
+			break;
+		}
+	}
+	
+	private bool IsFaceBlocked( vec3i x, vec3i z )
+	{
+		if( !m_blocks[x.x][x.y][x.z].IsActive() )
+		{
+			return true;
+		}
 		
-		v1 = data.AddVertex( point1, normal, color );
-		v2 = data.AddVertex( point2, normal, color );
-		v3 = data.AddVertex( point3, normal, color );
-		v4 = data.AddVertex( point4, normal, color );
+		return FindBlockActive( z );
+	}
+	
+	private BlockBase.BlockType FindBlockType( vec3i at )
+	{
+		if( at.x < 0 )
+		{
+			if( m_neighbours[Neighbour.NEGX] !is null )
+				return m_neighbours[Neighbour.NEGX].m_blocks[at.x + m_chunkSize][at.y][at.z].GetBlockType();
+			else
+				return BlockBase.BlockType.DEFAULT;
+		}
+		if( at.x >= m_chunkSize )
+		{
+			if( m_neighbours[Neighbour.POSX] !is null )
+				return m_neighbours[Neighbour.POSX].m_blocks[at.x - m_chunkSize][at.y][at.z].GetBlockType();
+			else
+				return BlockBase.BlockType.DEFAULT;	
+		}
 		
-		data.AddFace( vec3( v1, v2, v3 ) );
-		data.AddFace( vec3( v1, v3, v4 ) );
+		if( at.y < 0 )
+		{
+			if( m_neighbours[Neighbour.NEGY] !is null )
+				return m_neighbours[Neighbour.NEGY].m_blocks[at.x][at.y + m_chunkSize][at.z].GetBlockType();
+			else
+				return BlockBase.BlockType.DEFAULT;	
+		}
+		if( at.y >= m_chunkSize )
+		{
+			if( m_neighbours[Neighbour.POSY] !is null )
+				return m_neighbours[Neighbour.POSY].m_blocks[at.x][at.y - m_chunkSize][at.z].GetBlockType();
+			else
+				return BlockBase.BlockType.DEFAULT;	
+		}
 		
-		// back
-		normal = vec3( 0.0f, 0.0f, -1.0f );
+		if( at.z < 0 )
+		{
+			if( m_neighbours[Neighbour.NEGZ] !is null )
+				return m_neighbours[Neighbour.NEGZ].m_blocks[at.x][at.y][at.z + m_chunkSize].GetBlockType();
+			else
+				return BlockBase.BlockType.DEFAULT;
+		}
+		if( at.z >= m_chunkSize )
+		{
+			if( m_neighbours[Neighbour.POSZ] !is null )
+				return m_neighbours[Neighbour.POSZ].m_blocks[at.x][at.y][at.z - m_chunkSize].GetBlockType();
+			else
+				return BlockBase.BlockType.DEFAULT;
+		}
 		
-		v5 = data.AddVertex( point5, normal, color );
-		v6 = data.AddVertex( point6, normal, color );
-		v7 = data.AddVertex( point7, normal, color );
-		v8 = data.AddVertex( point8, normal, color );
+		return m_blocks[at.x][at.y][at.z].GetBlockType();
+	}
+	
+	private bool FindBlockActive( vec3i at )
+	{
+		if( at.x < 0 )
+		{
+			if( m_neighbours[Neighbour.NEGX] !is null )
+				return m_neighbours[Neighbour.NEGX].m_blocks[at.x + m_chunkSize][at.y][at.z].IsActive();
+			else
+				return false;	
+		}
+		if( at.x >= m_chunkSize )
+		{
+			if( m_neighbours[Neighbour.POSX] !is null )
+				return m_neighbours[Neighbour.POSX].m_blocks[at.x - m_chunkSize][at.y][at.z].IsActive();
+			else
+				return false;	
+		}
 		
-		data.AddFace( vec3( v5, v6, v7 ) );
-		data.AddFace( vec3( v5, v7, v8 ) );
+		if( at.y < 0 )
+		{
+			if( m_neighbours[Neighbour.NEGY] !is null )
+				return m_neighbours[Neighbour.NEGY].m_blocks[at.x][at.y + m_chunkSize][at.z].IsActive();
+			else
+				return false;	
+		}
+		if( at.y >= m_chunkSize )
+		{
+			if( m_neighbours[Neighbour.POSY] !is null )
+				return m_neighbours[Neighbour.POSY].m_blocks[at.x][at.y - m_chunkSize][at.z].IsActive();
+			else
+				return false;	
+		}
 		
-		// right
-		normal = vec3( 1.0f, 0.0f, 0.0f );
+		if( at.z < 0 )
+		{
+			if( m_neighbours[Neighbour.NEGZ] !is null )
+				return m_neighbours[Neighbour.NEGZ].m_blocks[at.x][at.y][at.z + m_chunkSize].IsActive();
+			else
+				return false;
+		}
+		if( at.z >= m_chunkSize )
+		{
+			if( m_neighbours[Neighbour.POSZ] !is null )
+				return m_neighbours[Neighbour.POSZ].m_blocks[at.x][at.y][at.z - m_chunkSize].IsActive();
+			else
+				return false;
+		}
 		
-		v2 = data.AddVertex( point2, normal, color );
-		v5 = data.AddVertex( point5, normal, color );
-		v8 = data.AddVertex( point8, normal, color );
-		v3 = data.AddVertex( point3, normal, color );
-		
-		data.AddFace( vec3( v2, v5, v8 ) );
-		data.AddFace( vec3( v2, v8, v3 ) );
-		
-		// left
-		normal = vec3( -1.0f, 0.0f, 0.0f );
-		
-		v6 = data.AddVertex( point6, normal, color );
-		v1 = data.AddVertex( point1, normal, color );
-		v4 = data.AddVertex( point4, normal, color );
-		v7 = data.AddVertex( point7, normal, color );
-		
-		data.AddFace( vec3( v6, v1, v4 ) );
-		data.AddFace( vec3( v6, v4, v7 ) );
-		
-		// top
-		normal = vec3( 0.0f, 1.0f, 0.0f );
-		
-		v4 = data.AddVertex( point4, normal, color );
-		v3 = data.AddVertex( point3, normal, color );
-		v8 = data.AddVertex( point8, normal, color );
-		v7 = data.AddVertex( point7, normal, color );
-		
-		data.AddFace( vec3( v4, v3, v8 ) );
-		data.AddFace( vec3( v4, v8, v7 ) );
-		
-		// bottom
-		normal = vec3( 0.0f, -1.0f, 0.0f );
-		
-		v6 = data.AddVertex( point6, normal, color );
-		v5 = data.AddVertex( point5, normal, color );
-		v2 = data.AddVertex( point2, normal, color );
-		v1 = data.AddVertex( point1, normal, color );
-		
-		data.AddFace( vec3( v6, v5, v2 ) );
-		data.AddFace( vec3( v6, v2, v1 ) );
+		return m_blocks[at.x][at.y][at.z].IsActive();
 	}
 	
 	public void Render( Renderer* renderer )

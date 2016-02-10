@@ -16,7 +16,9 @@
 *	along with this program.If not, see <http://www.gnu.org/licenses/>.
 */
 module s.renderer.camera;
+import derelict.glfw3.glfw3;
 import gl3n.frustum, gl3n.linalg;
+import s.system.input;
 
 class Camera
 {
@@ -38,9 +40,33 @@ class Camera
 		
 	}
 	
-	public void Update()
+	public void Update( double delta )
 	{
-		// keypress shit here.
+		if( Input.GetKey( GLFW_KEY_W ) )
+		{
+			Move( m_forward, cast(float)(0.5f * delta) );
+		}
+		if( Input.GetKey( GLFW_KEY_S ) )
+		{
+			Move( -m_forward, cast(float)(0.5f * delta) );
+		}
+		if( Input.GetKey( GLFW_KEY_A ) )
+		{
+			Move( cross( m_up, m_forward ), cast(float)(0.5f * delta) );
+		}
+		if( Input.GetKey( GLFW_KEY_D ) )
+		{
+			Move( cross( m_forward, m_up ), cast(float)(0.5f * delta) );
+		}
+		
+		if( Input.GetKey( GLFW_KEY_UP ) )
+		{
+			Move( m_up, cast(float)(0.5f * delta) );
+		}
+		if( Input.GetKey( GLFW_KEY_DOWN ) )
+		{
+			Move( -m_up, cast(float)(0.5f * delta) );
+		}
 	}
 	
 	public void Move( const vec3 direction, float speed )
