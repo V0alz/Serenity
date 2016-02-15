@@ -62,9 +62,9 @@ class Renderer
 			glEnable( GL_DEPTH_TEST );
 			glDepthFunc( GL_LESS );
 			
-			glFrontFace( GL_CCW );
-			glCullFace( GL_BACK );
-			glEnable( GL_CULL_FACE );
+			//glFrontFace( GL_CCW );
+			//glCullFace( GL_BACK );
+			//glEnable( GL_CULL_FACE );
 			
 			m_camera = new Camera( vec3( 0.0f, 2.0f, 24.0f ) );
 			int width, height;

@@ -14,6 +14,6 @@ out vec3 frag_normal;
 void main()
 {
 	frag_color = color;
-	frag_normal = normal;
+	frag_normal = (_transform_model * vec4( normal, 0.0 )).xyz;
 	gl_Position = _transform_perspective * _transform_view * _transform_model * vec4( vertex.x, vertex.y, vertex.z, 1 );
 }

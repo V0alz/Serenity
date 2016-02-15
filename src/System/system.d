@@ -22,6 +22,7 @@ import std.stdio;
 import s.renderer.renderer;
 import s.system.state;
 import s.system.input;
+import serenity.game;
 
 // temp import
 import derelict.glfw3.glfw3;
@@ -33,6 +34,7 @@ class System
 	private bool m_running;
 	private double m_deltaTime;
 	private Renderer m_renderer;
+	private Game m_game;
 	
 	public this()
 	{
@@ -48,9 +50,6 @@ class System
 	public void Run()
 	{
 		Start();
-		
-		Chunk c = new Chunk();
-		c.CreateMesh();
 		
 		double lastTime = glfwGetTime();
 		double currentTime = glfwGetTime();		
@@ -70,6 +69,7 @@ class System
 			{
 				case State.EngineStates.INIT:
 					Input.Init();
+					m_game = new Game();
 					State.SetMode( State.EngineStates.PLAYING );
 					break;
 					// init game in this case
@@ -80,7 +80,7 @@ class System
 				case State.EngineStates.PLAYING:
 					m_renderer.GetCamera().Update( m_deltaTime );
 					m_renderer.GetShader().Bind();
-					c.Render( &m_renderer  );
+					m_game.Render( &m_renderer );
 					break;
 				default:
 				case State.EngineStates.NUM_OF_MODES:
@@ -94,7 +94,6 @@ class System
 		}
 		while( m_running );
 		
-		delete c;
 		Clean();
 	}
 	
@@ -131,6 +130,10 @@ class System
 			if( m_renderer !is null )
 			{
 				delete m_renderer;
+			}
+			if( m_game !is null )
+			{
+				delete m_game;
 			}
 		}
 		

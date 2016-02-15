@@ -77,7 +77,7 @@ class Shader
 			glGetProgramiv( m_program, GL_INFO_LOG_LENGTH, &len );
 			char[] error = new char[len];
 			glGetProgramInfoLog( m_program, len, null, cast(char*)error );
-			string err = to!string(error);
+			string err = to!string( error );
 			Logger.Write( "Program failed to link!\n" ~ err, Logger.MSGTypes.ERROR );
 			return false;
 		}
@@ -90,7 +90,7 @@ class Shader
 			glGetProgramiv( m_program, GL_INFO_LOG_LENGTH, &len );
 			char[] error = new char[len];
 			glGetProgramInfoLog( m_program, len, null, cast(char*)error );
-			string err = to!string(error);
+			string err = to!string( error );
 			Logger.Write( "Program failed to validate!\n" ~ err, Logger.MSGTypes.ERROR );
 			return false;
 		}
@@ -127,7 +127,7 @@ class Shader
 			glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &len );
 			char[] error = new char[len];
 			glGetShaderInfoLog( shader, len, null, cast(char*)error );
-			string err = to!string(error);
+			string err = to!string( error );
 			Logger.Write( "Shader compilation failed!\n\n" ~ err, Logger.MSGTypes.ERROR );
 			return -1;
 		}

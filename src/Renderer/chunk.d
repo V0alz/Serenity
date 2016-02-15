@@ -53,16 +53,16 @@ class Chunk
 	
 	private bool m_updated;
 	private int m_size;
-	private static const uint m_chunkSize = 16;
+	public static const uint m_chunkSize = 16;
 	public BlockBase[m_chunkSize][m_chunkSize][m_chunkSize] m_blocks;
-	private Chunk*[Neighbour.NUM_NEIGHBOURS] m_neighbours;
+	public Chunk*[Neighbour.NUM_NEIGHBOURS] m_neighbours;
 	
-	public this()
+	public this( float world_x, float world_y, float world_z )
 	{
 		glGenVertexArrays( 1, &m_vao );
 		glGenBuffers( cast(int)BufferObjects.NUM, m_vbo.ptr );
 		glGenBuffers( 1, &m_ibo );
-		m_transform = new Transformation( vec3( 0.0f, 0.0f, -5.0f ) );
+		m_transform = new Transformation( vec3( world_x * m_chunkSize, world_y * m_chunkSize, world_z * m_chunkSize ) );
 		
 		// allows build of mesh data
 		m_updated = true;
@@ -514,8 +514,6 @@ class Chunk
 	public void Render( Renderer* renderer )
 	{
 		renderer.GetShader().SetUniform( "_transform_model", m_transform.GetModelMatrix() );
-		renderer.GetShader().SetUniform( "_transform_view", renderer.GetCamera().GetView() );
-		renderer.GetShader().SetUniform( "_transform_perspective", renderer.GetCamera().GetProjection() );
 		glBindVertexArray( m_vao );
 		glDrawElements( GL_TRIANGLES, m_size, GL_UNSIGNED_INT, cast(void*)0 );
 		glBindVertexArray( 0 );
