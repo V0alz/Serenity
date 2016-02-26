@@ -16,6 +16,7 @@
 *	along with this program.If not, see <http://www.gnu.org/licenses/>.
 */
 module s.renderer.window;
+
 import std.stdio;
 import derelict.glfw3.glfw3;
 import derelict.opengl3.gl3;

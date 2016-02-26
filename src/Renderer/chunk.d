@@ -75,13 +75,13 @@ class Chunk
 				{
 					if( x != 3 && y != 3 )
 					{
-						m_blocks[x][y][z] = new BlockStone();
+						m_blocks[x][y][z] = new BlockDirt();
 						m_blocks[x][y][z].SetActive( true );
 					}
 					else
 					{
-						m_blocks[x][y][z] = new BlockDirt();
-						m_blocks[x][y][z].SetActive( false );
+						m_blocks[x][y][z] = new BlockGrass();
+						m_blocks[x][y][z].SetActive( true );
 					}
 				}
 			}

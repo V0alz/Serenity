@@ -79,6 +79,7 @@ class System
 					// paused menu here
 				case State.EngineStates.PLAYING:
 					m_renderer.GetCamera().Update( m_deltaTime );
+					m_game.Update();
 					m_renderer.GetShader().Bind();
 					m_game.Render( &m_renderer );
 					break;

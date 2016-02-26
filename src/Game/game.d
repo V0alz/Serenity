@@ -35,6 +35,11 @@ class Game
 		delete world;
 	}
 	
+	public void Update()
+	{
+		world.Update();
+	}
+	
 	public void Render( Renderer* renderer )
 	{
 		world.Render( renderer );

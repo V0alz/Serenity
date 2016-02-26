@@ -5,3 +5,5 @@ dub.selections.json
 *.json
 out.txt
 Notes.txt
+*.prefs
+*.obj

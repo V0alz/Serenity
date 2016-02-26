@@ -81,6 +81,11 @@ class World
 		}
 	}
 	
+	public void Update()
+	{
+		
+	}
+	
 	public void Render( Renderer* renderer )
 	{
 		renderer.GetShader().SetUniform( "_transform_view", renderer.GetCamera().GetView() );
