@@ -22,8 +22,9 @@ class BlockWater : BlockBase
 {
 	public this()
 	{
-		super( true, BlockBase.BlockType.WATER );
-		SetColor( vec3( 0.133333f, 0.9254901f, 0.941176f ) );
+		super( false, BlockBase.BlockType.WATER );
+		color( vec3( 0.133333f, 0.9254901f, 0.941176f ) );
+		blockSize = 0.4f;
 	}
 	
 	public ~this()

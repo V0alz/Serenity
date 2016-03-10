@@ -19,7 +19,7 @@ module s.renderer.renderer;
 import std.stdio;
 import derelict.opengl3.gl3;
 import derelict.glfw3.glfw3;
-import gl3n.linalg : vec3;
+public import gl3n.linalg : vec3, vec3i;
 public import s.renderer.window;
 import s.renderer.shader;
 import s.renderer.camera;
@@ -62,14 +62,17 @@ class Renderer
 			glEnable( GL_DEPTH_TEST );
 			glDepthFunc( GL_LESS );
 			
-			//glFrontFace( GL_CCW );
-			//glCullFace( GL_BACK );
-			//glEnable( GL_CULL_FACE );
+			glFrontFace( GL_CCW );
+			glCullFace( GL_BACK );
+			glEnable( GL_CULL_FACE );
+			
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			
 			m_camera = new Camera( vec3( 0.0f, 2.0f, 24.0f ) );
 			int width, height;
-			glfwGetWindowSize( Window.GetWindow(), &width, &height );
-			m_camera.SetProjection( 45.0f, width, height, 0.1f, 100.0f );
+			glfwGetWindowSize( Window.window, &width, &height );
+			m_camera.SetProjection( 45.0f, width, height, 0.1f, 1000.0f );
 			
 			bool result;
 			m_shader = new Shader( "main", result );
@@ -113,12 +116,12 @@ class Renderer
 		Window.Swap();	
 	}
 	
-	public Shader* GetShader()
+	public @property Shader* shader()
 	{
 		return &m_shader;
 	}
 	
-	public Camera* GetCamera()
+	public @property Camera* camera()
 	{
 		return &m_camera;
 	}

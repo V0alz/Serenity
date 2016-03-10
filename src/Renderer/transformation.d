@@ -52,17 +52,17 @@ class Transformation
 		return t * r * s;
 	}
 	
-	public vec3* GetPosition()
+	public @property vec3* position()
 	{
 		return &m_position;
 	}
 	
-	public vec3* GetRotation()
+	public @property vec3* rotation()
 	{
 		return &m_rotation;
 	}
 	
-	public vec3* GetScale()
+	public @property vec3* scale()
 	{
 		return &m_scale;
 	}

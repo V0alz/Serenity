@@ -17,7 +17,7 @@
 */
 module s.system.input;
 
-import derelict.glfw3.glfw3;
+public import derelict.glfw3.glfw3;
 import s.system.logger;
 import s.renderer.window;
 
@@ -34,7 +34,7 @@ class Input
 			m_keys[i] = false;
 		}
 		
-		glfwSetKeyCallback( Window.GetWindow(), &callback );
+		glfwSetKeyCallback( Window.window, &callback );
 	}
 	
 	public static bool GetKey( int keycode )

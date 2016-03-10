@@ -15,19 +15,19 @@
 *	You should have received a copy of the GNU General Public License
 *	along with this program.If not, see <http://www.gnu.org/licenses/>.
 */
-module s.renderer.blocks.blockStone;
-import s.renderer.blocks.blockBase;
+module s.renderer.lightNode;
 
-class BlockStone : BlockBase
+import gl3n.linalg : vec3i;
+import s.renderer.chunk;
+
+class LightNode
 {
-	public this()
-	{
-		super( true, BlockBase.BlockType.STONE );
-		color( vec3( 0.811764f, 0.811764f, 0.811764f ) );
-	}
+	public vec3i m_index;
+	public Chunk* m_chunk;
 	
-	public ~this()
+	this( vec3i index, Chunk* chunk )
 	{
-		
+		m_index = index;
+		m_chunk = chunk;
 	}
 };

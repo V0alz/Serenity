@@ -2,9 +2,13 @@
 
 in vec3 frag_color;
 in vec3 frag_normal;
-out vec3 out_color;
+in float frag_light;
+out vec4 out_color;
 
 void main()
 {
-	out_color = frag_color;
+	float sunlightIntensity = max( 26 * 0.96f + 0.6f, 0.02f);
+	float lightIntensity = frag_light * sunlightIntensity;
+    
+	out_color = vec4( frag_color, 1.0f );
 }

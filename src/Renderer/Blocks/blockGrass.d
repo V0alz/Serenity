@@ -23,7 +23,7 @@ class BlockGrass : BlockBase
 	public this()
 	{
 		super( true, BlockBase.BlockType.GRASS );
-		SetColor( vec3( 0.0f, 1.0f, 0.0f ) );
+		color( vec3( 0.0f, 1.0f, 0.0f ) );
 	}
 	
 	public ~this()

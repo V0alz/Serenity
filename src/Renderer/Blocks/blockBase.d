@@ -17,14 +17,8 @@
 */
 module s.renderer.blocks.blockBase;
 
-import gl3n.linalg : vec3;
-
-/*
-public
-{
-import block types here
-}
-*/
+import gl3n.linalg : vec3, vec4;
+import s.system.logger;
 
 class BlockBase
 {
@@ -32,6 +26,7 @@ class BlockBase
 	{
 		// Standard blocks
 		DEFAULT,
+		AIR,
 		GRASS,
 		DIRT,
 		STONE,
@@ -43,23 +38,29 @@ class BlockBase
 		NUM_OF_TYPES
 	};
 	
-	private bool m_active;
+	private bool m_opaque;
 	private BlockType m_type;
 	private vec3 m_color;
-	private static const float m_blockSize = 0.5f; // built as (size * 2)(eg 0.5 * 2 = 1.0)
+	private ubyte m_sunLight;
+	private float m_light;
+	private float m_blockSize = 0.5f; // built as (size * 2)(eg 0.5 * 2 = 1.0)
 	
 	public this()
 	{
-		m_active = false;
+		m_opaque = true;
 		m_type = BlockType.DEFAULT;
 		m_color = vec3( 1.0f, 1.0f, 1.0f );
+		m_sunLight = 0;
+		m_light = 0.0f;
 	}
 	
-	public this( bool active, BlockType type )
+	public this( bool opaque, BlockType type )
 	{
-		m_active = active;
+		m_opaque = opaque;
 		m_type = type;
 		m_color = vec3( 1.0f, 1.0f, 1.0f );
+		m_sunLight = 0;
+		m_light = 0.0f;
 	}
 	
 	public ~this()
@@ -67,38 +68,64 @@ class BlockBase
 		
 	}
 	
-	public bool IsActive()
+	public @property bool opaque()
 	{
-		return m_active;
+		return m_opaque;
 	}
 	
-	public void SetActive( bool state )
+	protected @property void opaque( bool o )
 	{
-		m_active = state;
+		m_opaque = o;
 	}
 	
-	public BlockType GetBlockType()
+	public @property BlockType blockType()
 	{
 		return m_type;
 	}	
 	
-	public void SetBlockType( BlockType type = BlockType.DEFAULT )
+	public @property void blockType( BlockType type = BlockType.DEFAULT )
 	{
 		m_type = type;
 	}
 	
-	public vec3 GetColor()
+	public @property vec3 color()
 	{
 		return m_color;
 	}
 	
-	public void SetColor( vec3 color )
+	public @property void color( vec3 color )
 	{
 		m_color = color;
 	}
 	
-	public static float GetBlockSize()
+	public @property ubyte sunLight()
+	{
+		return m_sunLight;
+	}
+
+	public @property void sunLight( ubyte light )
+	{
+		m_sunLight = light;
+	}
+	
+	public @property float light()
+	{
+		return m_light;
+	}
+
+	public @property void light( float light )
+	{
+		Logger.Write( "light changed" );
+		m_light = light;
+	}
+	
+	public @property float blockSize()
 	{
 		return m_blockSize;
+	}
+	
+	public @property void blockSize( float size )
+	{
+		m_blockSize = size;
 	}
 };

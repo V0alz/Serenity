@@ -44,19 +44,19 @@ class Camera
 	{
 		if( Input.GetKey( GLFW_KEY_W ) )
 		{
-			Move( m_forward, cast(float)(0.5f * delta) );
+			Move( m_forward, cast(float)(0.98f * delta) );
 		}
 		if( Input.GetKey( GLFW_KEY_S ) )
 		{
-			Move( -m_forward, cast(float)(0.5f * delta) );
+			Move( -m_forward, cast(float)(0.98f * delta) );
 		}
 		if( Input.GetKey( GLFW_KEY_A ) )
 		{
-			Move( cross( m_up, m_forward ), cast(float)(0.5f * delta) );
+			Move( cross( m_up, m_forward ), cast(float)(0.98f * delta) );
 		}
 		if( Input.GetKey( GLFW_KEY_D ) )
 		{
-			Move( cross( m_forward, m_up ), cast(float)(0.5f * delta) );
+			Move( cross( m_forward, m_up ), cast(float)(0.98f * delta) );
 		}
 		
 		if( Input.GetKey( GLFW_KEY_UP ) )
@@ -79,12 +79,12 @@ class Camera
 		m_perspective = mat4.perspective( width, height, fov, zNear, zFar );
 	}
 	
-	public mat4 GetProjection()
+	public @property mat4 projection()
 	{
 		return m_perspective;
 	}
 	
-	public mat4 GetView()
+	public @property mat4 view()
 	{
 		return mat4.look_at( m_position, m_position + m_forward, m_up );
 	}

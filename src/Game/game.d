@@ -20,6 +20,7 @@ module serenity.game;
 import s.renderer.chunk;
 import s.renderer.world;
 import s.renderer.renderer;
+import s.system.input;
 
 class Game
 {
@@ -37,6 +38,15 @@ class Game
 	
 	public void Update()
 	{
+		if( Input.GetKey( GLFW_KEY_L ) )
+		{
+			world.DoLight();
+		}
+		if( Input.GetKey( GLFW_KEY_K ) )
+		{
+			world.addTorch();
+		}
+		
 		world.Update();
 	}
 	

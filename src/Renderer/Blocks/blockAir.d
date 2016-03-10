@@ -15,15 +15,15 @@
 *	You should have received a copy of the GNU General Public License
 *	along with this program.If not, see <http://www.gnu.org/licenses/>.
 */
-module s.renderer.blocks.blockStone;
+module s.renderer.blocks.blockAir;
 import s.renderer.blocks.blockBase;
 
-class BlockStone : BlockBase
+class BlockAir : BlockBase
 {
 	public this()
 	{
-		super( true, BlockBase.BlockType.STONE );
-		color( vec3( 0.811764f, 0.811764f, 0.811764f ) );
+		super( false, BlockBase.BlockType.AIR );
+		color( vec3( 1.0f, 1.0f, 1.0f ) );
 	}
 	
 	public ~this()

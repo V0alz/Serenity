@@ -78,7 +78,7 @@ class Window
 		glfwSwapBuffers( m_window );
 	}
 	
-	public static GLFWwindow* GetWindow()
+	public @property static GLFWwindow* window()
 	{
 		return m_window;
 	}

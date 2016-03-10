@@ -44,7 +44,7 @@ class State
 		m_currentMode = state;
 	}
 	
-	public static EngineStates GetMode()
+	public static @property EngineStates currentMode()
 	{
 		return m_currentMode;
 	}

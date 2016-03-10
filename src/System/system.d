@@ -41,6 +41,8 @@ class System
 		m_running = false;
 		m_deltaTime = 0.0;
 		State.SetMode( State.EngineStates.INIT );
+		m_renderer = null;
+		m_game = null;
 	}
 	
 	public ~this()
@@ -65,7 +67,7 @@ class System
 			m_deltaTime = currentTime - lastTime;
 			
 			m_renderer.Clear();
-			switch( State.GetMode() )
+			switch( State.currentMode )
 			{
 				case State.EngineStates.INIT:
 					Input.Init();
@@ -78,9 +80,9 @@ class System
 				case State.EngineStates.PAUSED:
 					// paused menu here
 				case State.EngineStates.PLAYING:
-					m_renderer.GetCamera().Update( m_deltaTime );
+					m_renderer.camera.Update( m_deltaTime );
 					m_game.Update();
-					m_renderer.GetShader().Bind();
+					m_renderer.shader.Bind();
 					m_game.Render( &m_renderer );
 					break;
 				default:
@@ -102,7 +104,7 @@ class System
 	{
 		if( m_running )
 		{
-			Logger.Write( "Y U START TWICE!", Logger.MSGTypes.WARNING );
+			Logger.Write( "Failed to start engine, Already running!", Logger.MSGTypes.WARNING );
 			return;
 		}
 		
@@ -116,7 +118,8 @@ class System
 	{
 		if( !m_running )
 		{
-			Logger.Write( "Y U NO RUN", Logger.MSGTypes.WARNING );
+			Logger.Write( "Failed to stop engine!", Logger.MSGTypes.WARNING );
+			Logger.Write( "Engine is not started to be stopped!", Logger.MSGTypes.MESSAGE );
 			return;
 		}
 		
@@ -126,6 +129,7 @@ class System
 	
 	private void Clean()
 	{
+		Logger.Write( "Cleaning up engine.", Logger.MSGTypes.MESSAGE );
 		if( !m_running )
 		{
 			if( m_renderer !is null )
@@ -138,6 +142,7 @@ class System
 			}
 		}
 		
+		Logger.Write( "Engine finished cleaning!", Logger.MSGTypes.MESSAGE );
 		Logger.Terminate();
 	}
 };

@@ -23,7 +23,7 @@ class BlockDirt : BlockBase
 	public this()
 	{
 		super( true, BlockBase.BlockType.DIRT );
-		SetColor( vec3( 0.701960f, 0.419607f, 0.188235f ) );
+		color( vec3( 0.701960f, 0.419607f, 0.188235f ) );
 	}
 	
 	public ~this()

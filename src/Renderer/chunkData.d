@@ -24,13 +24,15 @@ struct ChunkData
 	public Array!vec3 m_vertex;
 	public Array!vec3 m_normal;
 	public Array!vec3 m_color;
+	public Array!float m_light;
 	public Array!int m_indices;
 	
-	public int AddVertex( vec3 v, vec3 n, vec3 c )
+	public int AddVertex( vec3 v, vec3 n, vec3 c, float l )
 	{
 		m_vertex.insertBack( v );
 		m_normal.insertBack( n );
 		m_color.insertBack( c );
+		m_light.insertBack( l );
 		
 		return m_vertex.length();
 	}
